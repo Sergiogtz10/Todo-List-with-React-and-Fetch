@@ -1,30 +1,59 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+// Import components
 import TodoList from "./TodoList.jsx";
-
-//create your first component
+// Import fetch
+import { getTodos, updateTodos } from "../../Services/Todo.js";
 
 const Home = () => {
 	const [ListTodo, setListTodo] = useState([]);
-	const [NewTodo, setNewTodo] = useState("");
+	const [NewTodo, setNewTodo] = useState({ label: "", done: false });
 
 	console.log(ListTodo);
 	console.log({ NewTodo });
 
+	const getAllTodos = () => {
+		getTodos()
+			.then((res) => {
+				return res.json();
+			})
+			.then((data) => {
+				console.log(data);
+				setListTodo(data);
+			})
+			.catch((err) => {
+				console.log(err);
+			});
+	};
+	useEffect(() => {
+		getAllTodos();
+	}, []);
+
 	const handleClick = () => {
 		const newList = [...ListTodo, NewTodo];
-		setListTodo(newList);
-		setNewTodo("");
+		updateTodos(newList)
+			.then((res) => {
+				getAllTodos();
+			})
+			.catch((err) => {
+				console.log(err);
+			});
 	};
 	const deleteTodo = (id) => {
 		const deletetask = [...ListTodo];
-		deletetask.splice(id, 1);
-		setListTodo(deletetask);
+		updateTodos(deletetask)
+			.then((res) => {
+				getAllTodos();
+			})
+			.catch((err) => {
+				console.log(err);
+			});
 	};
 	const printTodos = () => {
 		return ListTodo.map((todo, index) => (
 			<TodoList todo={todo} id={index} delete={deleteTodo} />
 		));
 	};
+
 	return (
 		<div>
 			<div className="container d-flex justify-content-center col-5 p-3">
